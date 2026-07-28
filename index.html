@@ -1,0 +1,77 @@
+<script>
+    let tiles = ['🀄','🀄','🀅','🀅','🀆','🀆','🀇','🀇','🀈','🀈','🀉','🀉','🀊','🀊','🀋','🀋']; // 8 pairs
+    let selected = [];
+    let score = 0;
+    let lockBoard = false; // prevents clicking during animation
+
+    function startGame() {
+      shuffleArray(tiles);
+      const board = document.getElementById('gameBoard');
+      board.innerHTML = '';
+      tiles.forEach((tile) => {
+        const div = document.createElement('div');
+        div.classList.add('tile');
+        div.dataset.value = tile;
+        div.innerText = '?';
+        div.onclick = () => selectTile(div);
+        board.appendChild(div);
+      });
+    }
+
+    function selectTile(tile) {
+      if(lockBoard) return;
+      if(tile.classList.contains('selected') || tile.classList.contains('matched')) return;
+      if(selected.length < 2){
+        tile.innerText = tile.dataset.value;
+        tile.classList.add('selected');
+        selected.push(tile);
+      }
+      if(selected.length === 2) {
+        lockBoard = true;
+        checkMatch();
+      }
+    }
+
+    function checkMatch() {
+      if(selected[0].dataset.value === selected[1].dataset.value){
+        setTimeout(() => {
+          selected.forEach(t => {
+            t.classList.add('matched');
+            t.classList.remove('selected');
+          });
+          score += 10;
+          document.getElementById('score').innerText = score;
+          selected = [];
+          lockBoard = false;
+        }, 300);
+      } else {
+        setTimeout(() => {
+          selected.forEach(t => {
+            t.innerText = '?';
+            t.classList.remove('selected');
+          });
+          selected = [];
+          lockBoard = false;
+        }, 800);
+      }
+    }
+
+    function shuffleArray(array) {
+      for(let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function restartGame() {
+      score = 0;
+      document.getElementById('score').innerText = 0;
+      selected = [];
+      lockBoard = false;
+      startGame();
+    }
+
+    function shuffleTiles() { restartGame(); }
+
+    startGame();
+</script>
